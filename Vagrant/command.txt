@@ -20,10 +20,12 @@ To get status virtual machine
 
 To shutdown a virtual machine
 - vagrant  halt ID/HOSTNAME
+- vagrant  halt     (shutdown all)
 
 Launch a shell inside the machine
 - vagrant ssh ID/HOSTNAME
 
 To delete a virtual machine
-- vagrant destroy
+- vagrant destroy ID/HOSTNAME
+- vagrant destroy       (shutdown all)
 

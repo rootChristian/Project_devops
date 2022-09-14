@@ -1,70 +1,128 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+#ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
 Vagrant.configure("2") do |config|
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "base"
+  # Kubernetes Master Server
+  servers=[
+        {
+          :name => "kmaster1",
+          :hostname => "chagest.kmaster1",
+          :box => "centos/7",
+          :ip => "192.168.56.19",
+          :ssh_port => '2219'
+        },
+        {
+          :name => "kmaster2",
+          :hostname => "chagest.kmaster2",
+          :box => "centos/7",
+          :ip => "192.168.56.20",
+          :ssh_port => '2200'
+        }
+  ]
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
+  workers=[
+        {
+          :name => "kworker",
+          :hostname => "chagest.kworker",
+          :box => "centos/7",
+          :ip => "192.168.56.2",
+          :ssh_port => '220'
+        }
+  ]
 
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  # NOTE: This will enable public access to the opened port
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  #config.vm.provision "shell", path: "bootstrap.sh"
 
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine and only allow access
-  # via 127.0.0.1 to disable public access
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  servers.each do |machine|
+    config.vm.define machine[:hostname] do |km|
+      km.vm.box = machine[:box]
+      km.vm.hostname = machine[:hostname]
+      km.vm.network "private_network", ip: machine[:ip] 
+      km.vm.network "forwarded_port", guest: 22, host: machine[:ssh_port], id: "ssh"
+      
+      km.vm.provider "virtualbox" do |vb|
+        vb.name = machine[:name]
+        vb.gui = false
+        vb.memory = 2048
+        vb.cpus = 2
+        # Prevent Virtualbox from interfering with host audio stack
+        vb.customize ["modifyvm", :id, "--audio", "none"]
+      end
 
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+      #km.vm.provision "shell", path: "bootstrap_master.sh"
+      #km.vm.synced_folder "../data", "/home/vagrant/data"
+      km.vm.provision "file", source: "./command.txt", destination: "/home/vagrant/command.txt"
+      km.vm.provision "shell", run: "always",
+        inline: <<-SHELL
+          echo "Welcome to the "#{machine[:name]}
+        SHELL
+    end
+  end
 
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
+  # Number node
+  nodeCount = 3
 
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  # Kubernetes Worker Nodes
+  (1..nodeCount).each do |i|
+    workers.each do |node|
+      getName = "#{node[:name]}"+"#{i}"
+      getHostname = "#{node[:hostname]}"+"#{i}"
+      getIp = "#{node[:ip]}"+"#{i}"
+      getSsh_port = "#{node[:ssh_port]}"+"#{i}"
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
+      config.vm.define getHostname do |kw|
+        kw.vm.box = node[:box]
+        kw.vm.hostname = getHostname
+        kw.vm.network "private_network", ip: getIp
+        kw.vm.network "forwarded_port", guest: 22, host: getSsh_port, id: "ssh"
+        
+        kw.vm.provider "virtualbox" do |vb|
+          vb.name = getName
+          vb.customize ["modifyvm", :id, "--memory", 1024]
+          vb.customize ["modifyvm", :id, "--cpus", 1]
+          # Prevent Virtualbox from interfering with host audio stack
+          vb.customize ["modifyvm", :id, "--audio", "none"]
+        end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
+        kw.vm.provision "shell", run: "always",
+        inline: <<-SHELL
+          echo "Welcome to the "#{getName}
+        SHELL
+        #config.vm.provider "shell", 
+          #inline: <<-shell
+            #curl -sSl https:/get.k3s.io ! sh
+            #sudo cp -i "s/127\.0\.0\.1/192.168.178.60/" /vagrant/kubeconfig
+          #shell
+        #kw.vm.provision :shell do |shell|
+          #shell.path = "bootstrap_worker.sh"
+      end
+    end
+  end
 end
+
+
+
+
+# Vagrant.configure("2") do |config|
+#   config.vm.box = "ubuntu/trusty64"
+#   config.vm.network "private_network", auto_config: false
+#   # manual ip
+#   config.vm.provision "shell",
+#     run: "always",
+#     inline: "ifconfig eth1 192.168.178.60 netmask 255.255.255.0 up"
+#   # manual ipv6
+#   config.vm.provision "shell",
+#     run: "always",
+#     inline: "ifconfig eth1 inet6 add fc00::17/7"
+#   config.vm.hostname = "chagest0"
+#   python.vm.provider "virtualbox" do |vb|
+#     vb.memory = 4096
+#     vb.cpus = 2
+#     end
+#   config.vm.provider "shell", 
+#     inline: <<-shell
+#       curl -sSl https:/get.k3s.io ! sh
+#       sudo cp -i "s/127\.0\.0\.1/192.168.178.60/" /vagrant/kubeconfig
+#     shell
+# end

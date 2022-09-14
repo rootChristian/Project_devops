@@ -5,9 +5,21 @@
 Create the vagrant file
 - vagrant init
 
-ENvironment variable
-- process.env.PORT
+Check if not error
+- vagrant validate 
 
-Launch vagrant to generate a virtual machine
+To generate a virtual machine
 - vagrant up
+
+Reload a Vagrantfile machine
+- vagrant reload
+
+To shutdown a virtual machine
+- vagrant halt
+
+Launch a shell inside the machine
+- vagrant ssh 
+
+To delete a virtual machine
+- vagrant destroy
 

@@ -1,0 +1,13 @@
+***********************
+********COMMAND********
+***********************
+
+Create the vagrant file
+- vagrant init
+
+ENvironment variable
+- process.env.PORT
+
+Launch vagrant to generate a virtual machine
+- vagrant up
+

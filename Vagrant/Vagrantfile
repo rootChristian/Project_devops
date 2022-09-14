@@ -84,17 +84,14 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--audio", "none"]
         end
 
-        kw.vm.provision "shell", run: "always",
-        inline: <<-SHELL
+        kw.vm.provision "shell", run: "always", inline: <<-SHELL
           echo "Welcome to the "#{getName}
         SHELL
-        #config.vm.provider "shell", 
-          #inline: <<-shell
+        #config.vm.provider "shell", inline: <<-shell
             #curl -sSl https:/get.k3s.io ! sh
             #sudo cp -i "s/127\.0\.0\.1/192.168.178.60/" /vagrant/kubeconfig
-          #shell
-        #kw.vm.provision :shell do |shell|
-          #shell.path = "bootstrap_worker.sh"
+        #shell
+        kw.vm.provision "shell", path: "bootstrap.sh"
       end
     end
   end

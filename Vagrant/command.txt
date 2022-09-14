@@ -14,11 +14,15 @@ To generate a virtual machine
 Reload a Vagrantfile machine
 - vagrant reload
 
+To get status virtual machine
+- vagrant global-status 
+- vagrant global-status --prune   (and clean the cache)
+
 To shutdown a virtual machine
-- vagrant halt
+- vagrant  halt ID/HOSTNAME
 
 Launch a shell inside the machine
-- vagrant ssh 
+- vagrant ssh ID/HOSTNAME
 
 To delete a virtual machine
 - vagrant destroy

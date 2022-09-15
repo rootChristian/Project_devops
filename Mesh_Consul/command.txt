@@ -8,6 +8,9 @@
 # To access to the linkerd in browser
 - http://192.168.56.101:9990
 
+# Get metrics
+- http://192.168.56.101/metrics
+
 # Test server load balanced: 
 - curl -H "Host:myapp" 127.0.0.1:4040  OR  curl 127.0.0.1:4040/myapp
 

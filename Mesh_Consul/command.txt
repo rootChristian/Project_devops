@@ -1,0 +1,25 @@
+***********************
+********COMMAND********
+***********************
+
+# To access to the consul in browser
+- http://192.168.56.100:8500
+
+# To access to the linkerd in browser
+- http://192.168.56.101:9990
+
+# Test server load balanced: 
+- curl -H "Host:myapp" 127.0.0.1:4040  OR  curl 127.0.0.1:4040/myapp
+
+# Set mode maintainance: 
+- consul maint -enable
+
+# Unset mode maintainance: 
+- consul maint -disable
+
+# Stop service my app: 
+- service myapp stop
+
+# Unset mode maintainance: 
+- service myapp start
+

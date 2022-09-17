@@ -1,0 +1,5 @@
+***********************
+********COMMAND********
+***********************
+# Launch a playbook
+- ansible-playbook -i hosts playbook.yml

@@ -1,0 +1,35 @@
+---
+- name: Install server web
+  hosts: web
+  remote_user: root
+
+  vars:
+    username: chagest
+    domains: 
+      - chagest.test
+      - chagest.dev
+
+  roles:
+    - utils
+    - user
+    - nginx
+
+  # tasks:
+  #   - name: Install items
+  #     apt: name={{ item }} update_cache=yes state=latest
+  #     with_items:
+  #       - vim
+  #       - htop
+  #       - git
+  #       - zsh
+  #   - name: "Create user {{ username }}"
+  #     when: username is defined
+  #     user: name={{ username }} comment="Welcome to chagest" shell=/usr/bin/zsh
+  #   - name: Add a key ssh
+  #     when: username is defined
+  #     authorized_keys: user={{ username }} key="{{ lookup('file', '~/.ssh/id_ecdsa.pub') }}"
+  #   - name: "Create user {{ username }}"
+  #     when: set username in sudoers
+  #     template: src=template/sudoers.j2 dest=/etc/sudoers.d/{{ username }}-sudoer validate='visudo -cf %s'      
+
+...

@@ -1,0 +1,15 @@
+---
+- name: Create folder
+  Become: yes
+  file: path=/home/{{ username }}/{{ item }} state=directory owner={{ username }}
+
+- name: Create a symbolic link
+  Become: yes
+  file: src=/home/{{ username }}/{{ item }} dest=/var/www/{{ item }} state=link   # echo "Welcome in backstore" > {{ domain }}/index.html
+
+- name: Create and configure nginx
+  template: src=template/nginx.j2 dest=/etc/nginx/sites-available/{{ item }}
+
+- name: "Actif domain name {{ item }}"
+  file: src=/etc/nginx/sites-available/{{ item }} dest=/etc/nginx/sites-enabled/{{ item }} state=link
+  notify: Reload nginx

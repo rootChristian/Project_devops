@@ -1,0 +1,10 @@
+server{
+    server_name www.{{ item }};
+    return 301 $scheme://{{ item }}$request_url;
+}
+
+server{
+    server_name {{ item }};
+    root /var/www/{{ item }};
+    index index.html;
+}

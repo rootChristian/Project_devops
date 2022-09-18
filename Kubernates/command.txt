@@ -1,0 +1,492 @@
+**************************************
+**************KUBERNETES**************
+**************************************
+
+// Install kind: k3s
+-> https://gitlab.com/lucj/k8s-exercices/-/blob/master/Installation/k3s.md
+-> https://k3s.io  (IOT)
+
+// Install kind: k8s
+-> https://gitlab.com/lucj/k8s-exercices/-/blob/master/Installation/k3d.md
+-> https://kind.sigs.k8s.io (create cluster in local)
+
+// install Minikube
+-> https://gitlab.com/lucj/k8s-exercices/-/blob/master/Installation/minikube.md
+
+// Install microK8s
+https://gitlab.com/lucj/k8s-exercices/-/blob/master/Installation/microK8s.md
+-> https://microk8s.io  (DEVELOPER AND IOT)
+
+// Install kubeadm
+-> https://gitlab.com/lucj/k8s-exercices/-/blob/master/Installation/kubeadm.md
+
+// command cluster kubernetes
+- kubectl get nodes (list all nodes)
+- kubectl get pod -n kube-system  (list all the running pod system)
+
+// Intall minikube on mac
+   need docker on machine
+- brew update  
+- sudo chown -R $(whoami) /usr/local/share/man/man8
+- brew upgrade   
+- brew install hyperkit
+- brew cleanup hyperkit
+- brew install minikube
+- brew cleanup minikube
+- minikube start --vm-driver=hyperkit
+- kubectl version
+-  minikube status
+- kubectl get nodes
+- kubectl get po
+- kubectl get svc
+- kubectl get deploy
+
+- kubectl create deployment nginx-depl --image=nginx
+
+
+
+// launch
+- kubectl create -f POD_SPECIFICATION.yaml
+- kubectl get pods
+- kubectl describe pod POD_NAME     OR    - kubectl describe po/POD_NAME
+- kubectl logs POD_NAME [-c CONTAINER_NAME]
+- kubectl exec POD_NAME [-c CONTAINER_NAME] -- COMMAND 
+- kubectl delete pod POD_NAME
+
+// Server http  (nginx_pod.yaml)
+apiVersion: v1
+kind: pod
+metadata:
+    name: nginx
+spec:
+    containers:
+    - name: www
+      image: nginx:1.12.1
+
+// Practical
+- kubectl create -f nginx_pod.yaml
+- kubectl exec www -- nginx -v
+- kubectl exec -t -i www -- /bin/bash
+- kubectl describe po/www
+- kubectl delete pod www
+- kubectl port-forward www 8080:80
+
+// Debug  (debug.yaml)
+apiVersion: v1
+kind: pod
+metadata:
+    name: debug
+spec:
+    containers:
+    - name: debug
+      image: alpine
+      command:
+      - "sleep"
+      - "10000"
+    
+// Practical
+- kubectl create -f debug.yaml
+- kubectl get po
+- kubectl exec -t -i debug -- sh
+    # ping IP_ADDRESS
+
+// Workpress and Mysql  (workpress_mysql.yaml)
+apiVersion: v1
+kind: pod
+metadata:
+    name: workpress_mysql
+spec:
+    containers:
+    - name: workpress
+      image: workpress:4.9-apache
+      env:
+      - name: WORKPRESS_DB_PASSWORD
+        value: mysqlpwd
+      - name: WORKPRESS_DB_HOST
+        value: 127.0.0.1
+    - name: mysql
+      image: mysql:5.7
+      env:
+      - name: MYSQL_DB_PASSWORD
+        value: mysqlpwd
+      volumeMounts:
+      - name: data
+        mountPath: /var/lib/mysql
+    volumes:
+    - name: data
+      emptyDir: {}
+
+// Practical
+- kubectl create -f workpress_mysql.yaml
+- kubectl get po
+- kubectl port-forward workpress_mysql 8080:80
+
+// Sheduling a pod with the specific label
+- kubectl label nodes node1 disktype=ssd
+- kubectl get node/node1 -o yaml
+
+// DB (db.yaml)
+apiVersion: v1
+kind: pod
+metadata:
+    name: db
+    labels:
+        env: prod
+spec:
+    containers:
+    - name: mysql
+      image: mysql
+    nodeSelector:
+      disktype: ssd
+    
+// Practical
+- kubectl create -f db.yaml
+- kubectl get po
+
+Create a pod:
+- kubectl run www --image nginx:1.16
+
+Get pods
+- kubectl get pods
+
+Simulate a creation pod:
+- kubectl run db --image=mongo:4.2 --dry-run=client -o yaml
+
+//Services
+Service ClusterIP
+Example:
+- vi pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:    
+  name: vote    
+  labels:        
+    app: vote
+spec:    
+  containers:    
+  - name: vote      
+    image: instavote/vote
+
+- kubectl apply -f pod.yaml
+****************
+- vi svc.yaml
+apiVersion: v1
+kind: Service
+metadata:    
+  name: vote
+spec:    
+  selector:        
+    app: vote    
+  type: ClusterIP    
+  ports:    
+  - port: 80      
+    targetPort: 80
+
+- kubectl apply -f svc.yaml
+****************
+- kubectl get pod, svc
+****************
+Access inside the cluster
+- kubectl run debug -ti --image=alpine    # apk add -u curl    # curl http://vote
+****************
+Access outside the cluster
+Service ClusterIP - Port Forward
+- kubectl port-forward svc/vote 8080:80
+- localhost:8080
+
+Service ClusterIP - Proxy (8001)
+- kubectl proxy
+- localhost:8001/api/v1/namespaces/default/services/vote:80/proxy
+
+Service ClusterIP - NodePort
+- vi svc_np.yaml
+apiVersion: v1
+kind: Service
+metadata:    
+  name: vote-np
+spec:    
+  selector:        
+    app: vote    
+  type: NodePort    
+  ports:    
+  - port: 80      
+    targetPort: 80
+    nodePort: 31000
+
+- kubectl apply -f svc_np.yaml
+- kubectl get nodes -o wide
+- localhost:31000
+
+Service LoadBalancer
+- svc_lb.yaml
+apiVersion: v1
+kind: Service
+metadata:    
+  name: vote-lb
+spec:    
+  selector:        
+    app: vote    
+  type: LoadBalancer    
+  ports:    
+  - port: 80      
+    targetPort: 80
+
+- kubectl apply -f svc_lb.yaml
+- kubectl get svc
+
+Command imperatif
+Example 1:
+- kubectl run whoami --image containuos/whoami
+- kubectl expose pod whoami \
+  --type=NodePort \
+  --port=8080 \
+  --target-port=80 \
+  --dry-run=client \
+  -o yaml
+
+Exemple 2:
+- kubectl create service
+  nodeport \
+  whoami \
+  --tcp: 8080:80 \
+  --target-port=80 \
+  --dry-run=client \
+  -o yaml
+
+Exemple 3:
+- kubectl run db
+  --image=mongo:4.2 \
+  --port=27017 \
+  --expose \
+  --dry-run=client \
+  -o yaml
+
+Practical
+- kubectl run whoami --image containuos/whoami
+- kubectl expose pod whoami --type=NodePort --port=8080  --target-port=80
+- kubectl get svc
+- kubectl get nodes -o wide
+***************************
+- kubectl create service nodeport whoami2 --tcp: 8080:80
+- kubectl get svc/whoami2  -o yaml
+***************************
+- kubectl run db --image=mongo:4.2 --port=27017 --expose
+- kubectl get svc,pod
+
+- kubectl delete svc/SERVICE_NAME
+- kubectl describe svc SERVICE_NAME
+
+
+// Deployment
+- deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:    
+  name: vote
+spec:    
+  replicas: 3
+  selector:
+    matchLables:
+      app: vote    
+  template:
+    metadata:
+      labels:
+        app: vote
+    spec:
+      containers:
+      - name: vote
+        image: instavote/vote
+        ports:
+        - containerPort: 80 
+
+- kubectl apply -f deploy.yaml
+- kubectl get deploy,rs,pod
+
+Example:
+- deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:    
+  name: www
+spec:    
+  replicas: 4
+  selector:
+    matchLables:
+      app: www    
+  template:
+    metadata:
+      labels:
+        app: www
+    spec:
+      containers:
+      - name: www
+        image: nginx:1.16
+
+- kubectl apply -f deploy.yaml
+- kubectl get deploy,rs,pod
+
+Command imperatif
+- kubectl create deploy w3 --image nginx:1.16
+- kubectl create deploy w3 --image nginx:1.16 --dry-run=client -o yaml
+
+// Update Deployment
+- dpl.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:    
+  name: dpl
+spec:    
+  replicas: 3
+  selector:
+    matchLables:
+      app: dpl   
+  template:
+    metadata:
+      labels:
+        app: dpl
+    spec:
+      containers:
+      - name: dpl
+        image: nginx:1.14
+
+- kubectl apply -f dpl.yaml
+- kubectl get deploy,po
+- kubectl get pod dpl-NAME-POD -o yaml
+
+Update
+- dpl.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:    
+  name: dpl
+spec:    
+  replicas: 3
+  selector:
+    matchLables:
+      app: dpl   
+  template:
+    metadata:
+      labels:
+        app: dpl
+    spec:
+      containers:
+      - name: dpl
+        image: nginx:1.16
+
+- kubectl apply -f dpl.yaml
+- kubectl get pods
+****OR****
+- kubectl set image deploy/dpl dpl=nginx:1.18 --record
+- kubectl get pods
+
+// Revision
+- kubectl rollout history deploy/dpl
+
+// Roll back to first image(nginx:1.14)
+- kubectl rollout undo deploy/dpl --to-revision=1
+
+// Increment replicas
+- kubectl create deploy w3 --image=nginx:1.16
+- kubectl scale deploy/w3 --replicas=5
+
+// HorizontalPodAutoscaler
+- hpa.yaml
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:    
+  name: www
+spec:    
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment  
+    name: www
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+
+- kubectl apply -f hpa.yaml
+-kubectl get hpa -w
+
+Imperatif
+- kubectl autoscale deploy www --min=2 --max=10 --cpu-percent=50
+
+// Namespace
+- dev.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: development
+spec:
+  containers:
+  - name: www
+    image: nginx:1.12.2
+
+- kubectl create -f dev.yaml
+- kubectl get po --namespace=development
+- kubectl get po --all-namespaces
+
+// Resources 
+- kubectl api-resources
+
+// Explain
+- kubectl explain pod.spec.containers.command
+
+// Dashboard
+- kubectl get all -n kubernetes-dashboard
+- kubectl proxy
+- localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard/proxy/#/login
+
+
+
+
+
+
+TP-1 : [correction] Installation de minikube [code utilisé]
+ATTENTION : Le code que j'ai utilisé pour ma VM centos7 (sur un autre OS il faudra vous référez à la documentation officielle)
+
+Utilisez une VM de minimum 4 Go et 2 CPU, les commandes suivantes ont été testées sur centos7 et les commandes ont été exécutées avec le user centos qui a les droits admin
+
+sudo yum -y update
+
+sudo yum -y install epel-release
+
+sudo yum -y install git libvirt qemu-kvm virt-install virt-top libguestfs-tools bridge-utils
+
+sudo yum install socat -y
+
+sudo yum install -y conntrack
+
+sudo curl -fsSL https://get.docker.com -o get-docker.sh
+
+sudo sh get-docker.sh
+
+sudo usermod -aG docker centos
+
+suudo systemctl start docker
+
+sudo yum -y install wget
+
+sudo wget https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+sudo chmod +x minikube-linux-amd64
+
+sudo mv minikube-linux-amd64 /usr/bin/minikube
+
+sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+sudo chmod +x kubectl
+
+sudo mv kubectl /usr/bin/
+
+sudo echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+sudo systemctl enable docker.service
+
+minikube start --driver=none
+
+Pour l'autocomplétion:
+
+echo 'source <(kubectl completion bash)' >> ${HOME}/.bashrc && source ${HOME}/.bashrc
+
+

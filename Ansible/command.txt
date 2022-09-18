@@ -1,5 +1,65 @@
 ***********************
 ********COMMAND********
 ***********************
+
+// Install
+- sudo apt install ansible
+- ansible --version
+- cat /etc/*ea* (show the operation system)
+
+//On mac if the are problem file limit
+- sudo launchctl limit maxfiles unlimited
+// if the are problem in python
+- ansible_python_interpreter=/usr/bin/python3
+OR install
+- ansible myhost --become -m raw -a "yum install -y python2"
+
+// Generate keys
+- ssh-keygen -t ecdsa -b 521
+Copy a public key to remote server
+- ssh-copy-id chagest@raspberrypi
+Edit authorized_keys in remote server
+- from="IP_ADDRESS_SERVER", no-X11-forwarding PUBLIC_KEYS
+
+// Launch ssh agent 
+- eval ssh-agent 
+- ssh-add
+- ssh-add -l
+- ssh chagest@raspberrypi
+OR CREATE A CONFIG FILE
+- touch ~/.ssh/config
+- chmod 600 ~/.ssh/config
+- cat ~/.ssh/config
+  > Host raspberrypi
+        User chagest
+        Port 22
+        IdentifyFile /home/.ssh/private_key
+        LogLevel INFO
+        Compression yes
+        ForwardAgent yes
+        ForwardX11 yes
+
+- ansible -i "raspberrypi," all -m ping
+
+// Configuration ansible
+- vim /etc/ansible/ansible.cfg 
+
+- tree
+
+- ansible-config view   # See ansible.cfg considered
+- ansible-config list   # List all variable and value
+- ansible-config dump   # List all ansible variable
+
+- sshpass -p 'PASSWORD' ansible -i "NAME_SERVER/IP_ADDRESS_SERVER," all -u USERNAME -k -K -m ping      # -vvv: mode verbose; m:command; -b: elevation of privilege; -u: user; sshpass -p: insert password; -k: password user(avoid using); -K: password sudo; -C: check > dry run; -D: diff(show different); --ask-vault-pass: decrypt a secret vault;
+# --vault-password-file: file to decrypt; --one-line: stamp in one line; -a uptime: time command; -t: filter tags
+
+- ansible -i "node1," all -m copy -a 'src=/test.txt dest=/tmp/testing.txt'      # Copy file
+
+- ansible -i "node1," all -m fetch -a 'src=/tmp/testing.txt dest=test.txt'      # restore file delete
+
+- ansible -i "node1," all -m setup -a "filter=ansible_distribution*"      # list gathers facts and use filtering
+
+- ansible-inventory -i namefile.yml --list/graph  --vars   # List or graph  with vars.yml
+
 # Launch a playbook
 - ansible-playbook -i hosts playbook.yml

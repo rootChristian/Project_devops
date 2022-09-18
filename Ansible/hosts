@@ -1,2 +1,6 @@
 [web]
 IP_ADDRESS
+
+[all]
+IP_ADDRESS
+IP_ADDRESS

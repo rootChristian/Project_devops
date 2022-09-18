@@ -1,0 +1,32 @@
+---
+- name: Playbook generate key
+  hosts: all
+  tasks:
+
+  - name: Generate key ecdsa
+    openssh_keypair:
+      path: /tmp/chagest
+      type: ecdsa
+      size: 521
+      state: present
+      force: no
+    delegate_to: localhost  # In local server
+    run_once: yes       # Only one run
+
+  - name: Create user test
+    user:
+      name: test
+      shell: /bin/bash
+      groups: sudo
+      append: yes
+      password: "{{ 'password' | password_hash('512') }}"
+      become: yes
+
+  - name: Deploy public key to node
+    authorized_key:
+      user: test
+      key: "{{ lookup('file', '/tmp/chagest.pub') }}"
+      state: present
+    become: yes
+
+...

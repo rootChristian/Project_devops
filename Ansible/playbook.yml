@@ -15,6 +15,13 @@
     - nginx
 
   # tasks:
+  #   - name: Create directory and file
+  #     file:
+  #       state: directory
+  #       path: "/tmp/chagest/{{ item.dir }}/{{ item.filename }}"
+  #       recurse: yes
+  #     with_items:
+  #       - { dir: "testing", filename: "test.txt"}
   #   - name: Install items
   #     apt: name={{ item }} update_cache=yes state=latest
   #     with_items:

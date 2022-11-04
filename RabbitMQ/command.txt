@@ -1,0 +1,33 @@
+***********************
+********COMMAND********
+***********************
+
+// Install
+- sudo apt install erlang-nox rabbitmq-server
+
+# Mode GUI
+- rabbitmq-plugins enable rabbitmq_management
+
+# Access to browser
+- IP_ADDRESS:15672  # Default user: 'guest'; password: 'guest'
+
+# File configuration
+- vim /etc/rabbitmq/rabbitmq.conf
+  > listeners.tcp.1 = 0.0.0.0:5672
+    management.tcp.port = 15672
+- systemctl restart rabbitmq-server
+
+# Create user 
+# rabbitmqctl add_user --help
+- rabbitmqctl add_user USERNAME PASSWORD
+example: - rabbitmqctl add_user chagest chagestpwd
+
+# set_permissions [--vhost <vhost>] <username> <conf> <write> <read>
+- rabbitmqctl set_permissions -p / <user> ".*" ".*" ".*"
+example: - rabbitmqctl set_permissions -p / chagest ".*" ".*" ".*"
+
+# define user tag
+- rabbitmqctl set_user_tags <user> administrator
+example: - rabbitmqctl set_user_tags chagest administrator
+
+

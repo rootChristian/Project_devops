@@ -56,6 +56,7 @@ Vagrant.configure("2") do |config|
         inline: <<-SHELL
           echo "Welcome to the "#{machine[:name]}
         SHELL
+      #km.vm.provision "shell", path: "bootstrap_master.sh"
     end
   end
 
@@ -78,6 +79,7 @@ Vagrant.configure("2") do |config|
         
         kw.vm.provider "virtualbox" do |vb|
           vb.name = getName
+          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]  # Increment performance network
           vb.customize ["modifyvm", :id, "--memory", 1024]
           vb.customize ["modifyvm", :id, "--cpus", 1]
           # Prevent Virtualbox from interfering with host audio stack
@@ -87,6 +89,10 @@ Vagrant.configure("2") do |config|
         kw.vm.provision "shell", run: "always", inline: <<-SHELL
           echo "Welcome to the "#{getName}
         SHELL
+        #kw.vm.provider "shell", inline: <<-SHELL
+          #sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
+          #service ssh restart
+        #SHELL
         #config.vm.provider "shell", inline: <<-shell
             #curl -sSl https:/get.k3s.io ! sh
             #sudo cp -i "s/127\.0\.0\.1/192.168.56.60/" /vagrant/kubeconfig

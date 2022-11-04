@@ -438,10 +438,6 @@ spec:
 - localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard/proxy/#/login
 
 
-
-
-
-
 TP-1 : [correction] Installation de minikube [code utilisé]
 ATTENTION : Le code que j'ai utilisé pour ma VM centos7 (sur un autre OS il faudra vous référez à la documentation officielle)
 
@@ -490,3 +486,25 @@ Pour l'autocomplétion:
 echo 'source <(kubectl completion bash)' >> ${HOME}/.bashrc && source ${HOME}/.bashrc
 
 
+# Daemonset
+- nginx_daemonset.yaml
+apiVersion: app/v1
+kind: DaemonSet
+metadata:
+  name: www
+spec:
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: www
+          image: nginx
+          ports:
+          - containerPort: 80
+
+
+
+
+          

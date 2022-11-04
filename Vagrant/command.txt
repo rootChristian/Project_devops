@@ -2,6 +2,26 @@
 ********COMMAND********
 ***********************
 
+// Installation
+- apt-get install virtualbox
+
+- https://releases.hashicorp.com/vagrant/2.3.0/vagrant-2.3.0-1.x86_64.rpm
+OR
+- https://releases.hashicorp.com/vagrant/2.3.0/vagrant_2.3.0_linux_amd64.zip
+
+// Debian
+- https://releases.hashicorp.com/vagrant/2.3.0/vagrant_2.3.0-1_i686.deb
+- dkpg -i vagrant_2.3.0-1_i686.deb
+OR
+- wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+- echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+- sudo apt update && sudo apt install vagrant
+
+// Centos
+- sudo yum install -y yum-utils
+- sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+- sudo yum -y install vagrant
+
 Create the vagrant file
 - vagrant init
 

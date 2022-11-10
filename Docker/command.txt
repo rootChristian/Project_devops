@@ -1,0 +1,352 @@
+********************************
+********COMMAND DOCKER**********
+********************************
+
+Link to download open-source virtualization
+-> https://www.proxmox.com/en/
+
+******************WINDOWS:
+-> https://docs.docker.com/desktop/install/windows-install/
+// run in power shell:
+-> wsl --install
+Download the package kernel Linux di WSL 2 per computer x64
+-> https://docs.microsoft.com/it-it/windows/wsl/install-manual#step-4---download-the-linux-kernel-update-package
+
+List all machines visibles
+- docker-machine ls
+
+Stop all machines visibles
+- docker-machine stop
+
+Start all machines visibles
+- docker-machine stop
+
+Environment variable
+- docker-machine env
+
+Rigenerate certificate if have problem certificate
+- docker-machine regenerate-certs default
+
+Version docker
+- docker  version
+OR
+Version docker
+- docker-machine env --shell cmd default
+############### Method better
+Version docker
+- eval $(docker-machine env default)
+- docker version
+
+******************RASPBERRY (AND PORTAINER):
+- curl -sSL https://get.docker.com | sh
+- sudo usermod -aG docker [USERNAME]
+- sudo docker pull portainer/portainer-ce:latest
+- sudo docker run -d -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+- hostname -I
+- http://[PIIPADDRESS]:9000
+
+******************LINUX:
+Check and remove all version if it's installed
+# Ubuntu / Debian
+- sudo apt-get remove docker docker-engine docker.io containerd runc
+
+# CentOS / RedHat
+- sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+
+# Fedora
+- sudo dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+
+Installation
+# CentOS / RedHat
+- sudo yum install -y yum-utils
+- sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+- sudo yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+- sudo yum list docker-ce --showduplicates | sort -r
+- docker version        
+- docker info
+
+- systemctl start docker
+
+- sudo usermod -aG docker [USERNAME]
+
+- docker run -it ubuntu bash
+
+******Docker container******
+- docker container run -it --name server_nginx --publish 80:80 nginx bash    (t: simulate a real terminal; i: keep the session open; bash: give terminal to operate)
+
+- docker container -it server_nginx exec apt-get install curl    (exec: execute a command inside a terminal)
+
+- docker container run --publish 80:80 --detach nginx   (detach: run in background)
+
+- docker container run --publish 80:80 --detach --name server_nginx  nginx   (name: give name of container)
+
+- docker container ls -a   OR   - docker ps   (list container running) 
+
+- docker container stop server_nginx 
+
+- docker container rm server_nginx    OR    - docker container rm -f ID  (-f: to force deleted if in running)
+
+- docker container logs server_nginx    OR    - docker container logs ID
+
+- docker container top server_nginx    OR    - docker container top ID
+
+- docker container inspect NAME_SERVER OR ID (get all info server)
+
+- docker container stats NAME_SERVER OR ID (show info CPU and memory)
+
+- docker container port NAME_SERVER OR ID (get the port number)
+
+- docker container inspect --format '{{.NetworkSettings.IPAddress}} NAME_SERVER OR ID (get the ip address)
+
+******Docker network******
+- docker network ls (list the network)
+
+- docker network inspect bridge (get info network bridge)
+
+- docker network create network_test (create a new network)
+
+- docker container run --publish 80:80 --detach --name server_nginx  --network network_test nginx   (add network_test to the new container generated)
+
+- docker network inspect network_test (get info network network_test)
+
+- docker network connect network_test NAME_SERVER OR ID  (connect container to the network_test)
+
+- docker network disconnect network_test NAME_SERVER OR ID  (disconnect container to the network_test)
+
+******Docker image******
+- docker image history NAME_IMAGE  (list image history)
+
+- docker image inspect NAME_IMAGE (get info image name)
+
+- docker image ls (list all image)
+
+- docker image tag SOURCE_NAME_IMAGE:latest NAME_ACCOUNT_DOCKER/NEW_NAME_IMAGE:latest (target new image using existing image)
+
+- docker login
+
+- docker image push NAME_ACCOUNT_DOCKER/NEW_NAME_IMAGE
+
+- docker logout
+
+// Logic to make a Dockerfile
+# define a basic image (obligated)
+- FROM ubuntu:latest
+# define a environment variable
+- ENV NAME_ENVIRONMENT "I'm a variable"
+# execute this command in the shell to update and install
+- RUN apt-get update && apt-get install nginx curl -y 
+# Open the port inside the container
+- EXPOSE 80 443
+# execute this command when the container start (obligated)
+- CMD ["nginx", "-g", "daemon off;"]
+
+// In the terminal
+- docker image build -t img_nginx .
+- docker rmi ID_IMAGE   (delete image with id)
+
+******Docker volume******
+List docker volume:
+- docker volume ls
+
+Delete docker volume and keep the last docker volume:
+- docker volume prune
+
+Delete all docker volume:
+- docker rm node-app -fv
+
+Get info volume name
+- docker volume inspect NAME_VOLUME
+
+Create image mysql (v: specify the volume name ; e: specify the environment variable)
+- docker container run --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=True -v mysql_db:/var/lib/mysql mysql:latest
+
+Go to the image docker:
+- docker exec -it mysql bash 
+
+******Bind mounting******
+Create image server_nginx with the bind mounting in local
+- docker container run -d --name server_nginx -p 8080:80 -v "home/Docker/html":/usr/share/nginx/html nginx
+
+
+******Docker compose******
+Example template.yml
+
+# Set version; one in default
+version: '3'
+
+# List of containers to launch
+services:
+    # Name first service
+    name_first_service:
+        # Image to use (optional)
+        image:
+
+        # Command replace the CMD command specified in the dockerfile (optional)
+        command:
+
+        # Environment variable (equal to option -e)
+        environment:
+
+        # Volumes (equal to option -v)
+        volumes:
+
+        # Ports to be expose (equal to option -p)
+        ports:
+
+    # Name second service
+    name_second_service:
+        # Specifies to use the dockerfile to build the image (optional)
+        build: .
+
+# List of volumes to be created (equal to command: docker volume create)
+volumes:
+
+# List of newtworks to be created (equal to command: docker network create)
+networks:
+
+
+// Example practical
+Example docker-compose.yml
+
+version: '3'
+
+# docker container run -d --name server_nginx -p 8080:80 -v "home/Docker/html":/usr/share/nginx/html nginx:latest
+
+services:
+    server_nginx:
+        image: img_nginx
+        volumes:
+            - ./:/usr/share/nginx/html
+        ports:
+            - '80:80'
+
+-> docker-compose up -d   (to launch a container)
+
+-> docker-compose down   (to stop a container)
+
+###############
+Example HAProxy
+
+mkdir Apache_server Apache_server/haproxy Apache_server/servers Apache_server/servers/server1 Apache_server/servers/server2
+
+touch Apache_server/docker-compose.yml
+
+touch Apache_server/haproxy/Dockerfile Apache_server/haproxy/haproxy.cfg
+
+touch Apache_server/servers/server1/Dockerfile Apache_server/servers/server1/index.html
+touch Apache_server/servers/server2/Dockerfile Apache_server/servers/server2/index.html
+
+echo -e "??????????" > Apache_server/haproxy/haproxy.cfg
+echo -e "<!doctype html>\n<html>\n<head>\n<title>First web site</title>\n</head>\n<body>\n<p>Welcome to server 1</p>\n</body>\n</html>" > Apache_server/servers/server1/index.html
+echo -e "<!doctype html>\n<html>\n<head>\n<title>Second web site</title>\n</head>\n<body>\n<p>Welcome to server 2</p>\n</body>\n</html>" > Apache_server/servers/server2/index.html
+
+echo -e "FROM haproxy:1.7\nCOPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg" > Apache_server/haproxy/Dockerfile
+echo -e "FROM httpd:2.4\nCOPY index.html /usr/local/apache2/htdocs/index.html" > Apache_server/servers/server1/Dockerfile
+echo -e "FROM httpd:2.4\nCOPY index.html /usr/local/apache2/htdocs/index.html" > Apache_server/servers/server2/Dockerfile
+
+-> vi Apache_server/docker-compose.yml
+version: '3'
+
+services:
+    apache_server1:
+        container_name: haproxy_apache_con1
+        build: ./servers/server1
+        expose:
+            - 80
+        networks:
+            public_net:
+                ipv4_address: "192.168.0.1"
+    apache_server2:
+        container_name: haproxy_apache_con2
+        build: ./servers/server2
+        expose:
+            - 80
+        networks:
+            public_net:
+                ipv4_address: "192.168.0.2"
+    server_haproxy:
+        build: ./haproxy
+        ports:
+            - 80:80
+        expose:
+            - 80
+        networks:
+            public_net:
+                ipv4_address: "192.168.0.0"
+networks:
+    public_net:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: "192.168.0.0/24"
+
+###############
+
+**********************************
+**********************************
+
+
+
+Build docker image:
+- docker build -t node-app-image .
+
+Run docker image:
+- docker run -d -p 8888:5555 --name node-app node-app-image
+
+Run docker image and switch project ("-v $(pwd):/app"):
+- docker run -v $(pwd):/app -d -p 8888:5555 --name node-app node-app-image
+
+Update docker and add ("/app/node_modules"):
+- docker run -v $(pwd):/app -v /app/node_modules -d -p 8888:5555 --name node-app node-app-image
+
+Go to the image docker:
+- docker exec -it node-app bash 
+
+Protect project to can't create and read to file system  (":ro"):
+- docker run -v $(pwd):/app:ro -v /app/node_modules -d -p 8888:5555 --name node-app node-app-image
+
+Update docker port ("--env PORT=5550"):
+- docker run -v $(pwd):/app -v /app/node_modules -d --env PORT=5550 -p 8888:5550 --name node-app node-app-image
+
+Update docker and add environment variable ("--env-file ./.env"):
+- docker run -v $(pwd):/app -v /app/node_modules -d --env-file ./.env -p 8888:5550 --name node-app node-app-image
+
+
+
+*****DOCKER-COMPOSE******
+
+Run and build image docker and create default network:
+- docker-compose up -d
+
+Run and rebuild image docker if exist and create default network:
+- docker-compose up -d --build
+
+Stop and removing image docker and default network:
+- docker-compose down -v 
+
+Run and build image docker and create default network and pass the file docker-compose ("-f docker-compose.yml"):
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+Go to the image docker with username and password:
+- docker exec -it backend_mongo_1 mongo -u "christ" -p "password"
+- show dbs; - use mydb; db.employees.insert({"name": "Bester pinor"}); - db.employees.find()
+
+To have information docker image ("backend_node-app_1"):
+- docker inspect backend_node-app_1
+
+To have information docker network ("backend_default"):
+- docker network inspect backend_default
+
+To see the logs of image building ("backend_node-app_1"):
+- docker logs backend_node-app_1 -f
+
+To not run dependency image ("--no-deps node-app"):
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --no-deps node-app
+
+Run and build image docker and create a new volume ("-V"):
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build -V
+
+Run to instance for docker image ("--scale node-app=2"):
+- docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --scale node-app=2
+

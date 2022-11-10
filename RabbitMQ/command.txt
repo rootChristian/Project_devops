@@ -31,3 +31,4 @@ example: - rabbitmqctl set_permissions -p / chagest ".*" ".*" ".*"
 example: - rabbitmqctl set_user_tags chagest administrator
 
 
+####################################

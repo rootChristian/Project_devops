@@ -1,0 +1,77 @@
+*********COMMAND GIT************
+
+Command to initialize:
+- git init
+
+Command view all remote repository:
+- git remote -v
+
+Command add new branch:
+- git branch master ( or other name branch)
+
+Command to change branch:
+- git checkout master
+
+Command to report all branch in the the master: ( bring all in master )
+- git checkout master
+- git merge main ( or other branch)
+
+Command to return on the separate branch: ( forward )
+- git reset HEAD^^
+- git  checkout main ( Back to branch main)
+- git  status ( check status )
+- git add . ( add all )
+- git commit -m "main..." ( commit the branch )
+
+- git  checkout master ( bring all in master )
+- git  status ( check status )
+- git add . ( add all )
+- git commit -m "master..." ( commit the branch )
+- git merge main ( fusion all in master ) / - git merge --no-ff main  ( don't take a main commit to fusion )
+
+Command back to the last commit:
+- git reset --hard
+
+Command to delete branch:
+- git branch -d main ( or other branch)
+
+Command to show all branch:
+- git branch -a
+
+Command to show logs:
+- git log --oneline
+
+Command to show status:
+- git status
+
+Command to add remote repository:
+- git remote add origin https://gitlab.com/rootChristian/eshop_tesi_di_laurea.git
+
+Command to set a new repository:
+- git remote set-url origin https://gitlab.com/rootChristian/eshop_tesi_di_laurea.git
+
+Command to add all data:
+- git add .
+
+Command to commit:
+- git commit -m "front and back end..."
+
+Command to commit:
+- git push -uf origin master
+
+Command to rename the origin:
+- git remote rename origin chagest-eshop ( new name )
+
+Command to remove the origin(repository):
+- git remote remove origin
+
+
+/************** HEROKU DEPLOY BACKEND ***************/
+
+- heroku login
+- heroku git:clone -a back-eshop 
+- cd back-eshop
+- git add .
+- git commit -am "make it better"
+- git push heroku master
+

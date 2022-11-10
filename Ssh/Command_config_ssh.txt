@@ -1,0 +1,104 @@
+********************************
+*********COMMAND SSH************
+********************************
+
+******Centos9*******Start
+Generate public and private key
+- ssh-keygen -t rsa -b 4096 -C "centos9"
+
+Create directory .ssh in the virtual machine (mkdir /home/centos/.ssh)
+Command to copy file to the virtual machine:
+- scp ~/.ssh/id_rsa.pub centos@192.168.0.0:/home/centos/.ssh/pub_key.pub
+
+- scp -r /home/Banners centos@192.168.0.0:/home/centos/
+
+Copy file to other file: (Important to copy on file authorized_keys 
+and after reload the system for this command: "- sudo systemctl reload sshd")
+- cat ~/.ssh/pub_key.pub >> ~/.ssh/authorized_keys
+
+Change privilege ssh:
+- chmod 700 ~/.ssh/     - chmod 600 ~/.ssh/*
+
+Save the default config:
+- sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config_backup
+
+- sudo vi /etc/ssh/sshd_config
+    > PermitRootLogin prohibit-password
+    > StrictModes yes
+    > PasswordAuthentication no
+    > PermitEmptyPasswords no
+    
+- sudo systemctl restart sshd
+
+Practical
+- ssh-copy-id -i "/Users/localmachine/Desktop/centos9/id_centos9.pub" root@127.0.0.1
+
+- ssh chagest@192.168.0.0 -p 22
+
+Remove key
+- ssh-keygen -R HOST_IPADDRESS
+
+******Centos9*******End
+
+
+
+Link important:
+- https://www.openssh.com
+- https://www.youtube.com/watch?v=vpk_1gldOAE
+
+Command to mount folder from window to oracle linux:
+- umount -a
+- uname -r
+- /usr/bin/vmhgfs-fuse /mnt/hgfs/ -o subtype=vmhgfs-fuse,allow_other
+
+List all the port in server:
+- netstat -tulnp
+
+Command to install ssh:
+- sudo apt-get install openssh-server   (First update the system)
+
+Command to copy all the file ssh to the external disk:
+- scp /Users/localmachine/.ssh/*  /Volumes/Data/Secret_key/
+
+Command to copy file on the virtual machine to my Mac(physical computer):
+- scp ~/Command_ssh.txt localmachine@localmachine:/Users/localmachine/
+
+Command to copy file to the virtual machine:
+- scp -P 2222 ~/.ssh/id_rsa.pub centos@192.168.0.0:/home/centos/.ssh/pub_key.pub
+
+Copy file to other file: (Important to copy on file authorized_keys and after reload the system on ubuntu for this command: "- sudo service ssh reload ")
+- cat ~/.ssh/pub_key.pub >> ~/.ssh/authorized_keys
+
+Command to connect to the virtual machine (default port = 22):
+- ssh -p 2222 root@192.168.178.132
+
+Change privilege ssh:
+- chmod 700 ~/.ssh/     - chmod 600 ~/.ssh/*
+
+Save the default config:
+- sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+
+List the port ssh:
+- sudo semanage port -l | grep ssh
+
+Enable the port ssh:
+- sudo vi /etc/ssh/sshd_config
+
+Add new port ssh:
+- sudo semanage port -a -t ssh_port_t -p tcp 2222
+
+Add new port ssh to the firewall:
+- sudo firewall-cmd --add-port=2222/tcp --permanent
+
+Reload the firewall:
+- sudo firewall-cmd --reload
+
+Show the status firewall:
+- systemctl status firewalld
+
+Restart the sshd:
+- sudo systemctl restart sshd
+
+View the active port on the system:
+- sudo netstat -ntl | grep 2222
+

@@ -286,6 +286,11 @@ networks:
 **********************************
 **********************************
 
+ENVIRONMENT VARIABLE
+- docker run -dit --name testenv --env VAR_PASS="123" ubuntu:latest
+- docker run -dit --name testenv --env-file NAME_FILE_ENV.lst ubuntu:latest  (--env-file: insert a file environment)
+- docker run -dit --name testenv --hostname NAME_HOST ubuntu:latest  (--hostname: define a hostname)
+
 Data persitent:
 - docker container run -dit --name server_nginx -v /home/srv/nginx/:/usr/share/nginx/html -p 8080:80 nginx:latest
 Create volume:
@@ -320,8 +325,137 @@ Update docker and add environment variable ("--env-file ./.env"):
 - docker run -v $(pwd):/app -v /app/node_modules -d --env-file ./.env -p 8888:5550 --name node-app node-app-image
 
 
+*******DOCKERFILE********
+- vim Dockerfile
 
-*****DOCKER-COMPOSE******
+FROM ubuntu:latest
+MAINTAINER Christian
+RUN apt-get update && apt-get install -y vim git \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Build image
+- docker build -t myimage:V1.0.0 .
+# Get details
+- docker history myimage:V1.0.0
+
+*******************************
+- vim Dockerfile
+
+# MINI MICROSERVICE
+*WEB MASTER:
+FROM ubuntu:latest
+RUN apt-get update 
+RUN apt-get install -y nginx
+VOLUME /var/www/html
+EXPOSE 8080:80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+***********************
+***WORKERS:
+*WORKER1:
+FROM php:7.2-cli
+COPY cal.sh /
+COPY show.php /
+RUN chmod 755 /cal.sh
+ENTRYPOINT ["./cal.sh"]
+***********************
+# Files worker1:
+- vim cal.sh
+#!/bin/bash
+echo "WELCOME TO WORKER1\n" > /var/www/html/worker1.txt
+php /show.php
+*********
+- vim show.php
+<?php
+$file1='/var/www/html/worker1.txt';
+$file2='/var/www/html/worker2.txt';
+
+if(file_exists($file1)){
+    $fs=fopen($file1, 'r');
+    while($line = fgets($fs)){
+        $worker1=$line;
+    }
+    fclose($fs);
+}
+
+if(file_exists($file2)){
+    $fs=fopen($file2, 'r');
+    while($line = fgets($fs)){
+        $worker2=$line;
+    }
+    fclose($fs);
+}
+
+$File="/var/www/html/index.html";
+$Fs=fopen($File, 'w');
+fwrite($Fs, $worker1);
+fwrite($Fs, $worker2);
+fclose($Fs);
+?>
+**********************************************
+*WORKER2:
+FROM php:7.2-cli
+COPY cal.sh /
+COPY show.php /
+RUN chmod 755 /cal.sh
+ENTRYPOINT ["./cal.sh"]
+***********************
+# Files worker2:
+- vim cal.sh
+#!/bin/bash
+echo "WELCOME TO WORKER2\n" > /var/www/html/worker2.txt
+php /show.php
+*********
+- vim show.php
+<?php
+$file1='/var/www/html/worker1.txt';
+$file2='/var/www/html/worker2.txt';
+
+if(file_exists($file1)){
+    $fs=fopen($file1, 'r');
+    while($line = fgets($fs)){
+        $worker1=$line;
+    }
+    fclose($fs);
+}
+
+if(file_exists($file2)){
+    $fs=fopen($file2, 'r');
+    while($line = fgets($fs)){
+        $worker2=$line;
+    }
+    fclose($fs);
+}
+
+$File="/var/www/html/index.html";
+$Fs=fopen($File, 'w');
+fwrite($Fs, $worker1);
+fwrite($Fs, $worker2);
+fclose($Fs);
+?>
+
+# Build images
+**cd /master_folder
+- docker build -t webmaster:V1.0.0 .
+- docker run -dit -p 8080:80 --name site webmaster   (Launch a service)
+- docker inspect site
+**cd /worker1_folder
+- docker build -t worker1:V1.0.0 .
+- docker run -dit --name worker1 --volumes-from site worker1   (Launch a service and attache a volume)
+**cd /worker2_folder
+- docker build -t worker2:V1.0.0 .
+- docker run -dit --name worker2 --volumes-from site worker2  (Launch a service and attache a volume)
+
+# GET information: Name and IPAddress
+- docker inspect -f '{{.Name}} : {{.NetworkSettings.IPAddress}}' site
+# GET information in all containers: Name and IPAddress
+- for id in $(docker ps -aq) ; do docker inspect -f '{{.Name}} : {{.NetworkSettings.IPAddress}}' $id; done
+
+# Check ports open:
+- nmap -PM 172.17.0.2
+
+
+******DOCKER-COMPOSE******
 
 Run and build image docker and create default network:
 - docker-compose up -d

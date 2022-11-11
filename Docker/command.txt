@@ -286,7 +286,14 @@ networks:
 **********************************
 **********************************
 
+Data persitent:
+- docker container run -dit --name server_nginx -v /home/srv/nginx/:/usr/share/nginx/html -p 8080:80 nginx:latest
+Create volume:
+- docker volume create srv
+- docker volume inspect srv
 
+Mount a volume in server nginx:
+- docker container run -itd --name server_nginx --mount source=srv,target=/usr/share/nginx/html -p 8080:80 nginx:latest
 
 Build docker image:
 - docker build -t node-app-image .

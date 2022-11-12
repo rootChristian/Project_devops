@@ -35,7 +35,7 @@ https://gitlab.com/lucj/k8s-exercices/-/blob/master/Installation/microK8s.md
 - brew cleanup minikube
 - minikube start --vm-driver=hyperkit
 - kubectl version
--  minikube status
+- minikube status
 - kubectl get nodes
 - kubectl get po
 - kubectl get svc

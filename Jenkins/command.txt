@@ -1,0 +1,30 @@
+***********************************
+**************JENKINS**************
+***********************************
+
+- vim docker-compose.yml
+
+version: '2.0'
+services:
+    jenkins:
+        image: 'jenkins'
+        container_name: "jenkins"
+        labels:
+            kompose.service.type: nodeport
+        ports:
+            - '8080:8080'
+            - '443:8443'
+            - '50000:50000'
+        volumes:
+            - /home/srv/jenkins/data:/jenkins/jenkins_home
+            - /home/srv/jenkins/config:/jenkins/jenkins_config
+volumes:
+    data:
+        driver: local
+    config:
+        driver: local
+
+- docker-compose up -d  (Launch a docker compose)
+- docker logs jenkins   (To get password in log)
+
+

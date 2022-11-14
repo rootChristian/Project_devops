@@ -57,6 +57,16 @@ List all the port in server:
 Command to install ssh:
 - sudo apt-get install openssh-server   (First update the system)
 
+Command copy in mode secure: (SFTP)
+option: get=copy; put=sent; lpwd=current directory;
+- sftp HOSTNAME@IP_MACHINE_DISTANT  
+ sftp> get /Volumes/Data/Secret_key/     (copy Secret_key in the local machine)
+
+Synchronize Files Between Systems Securely: (RSYNC)
+option: n:simulation; a=mode archive; v=verbose; l=Synchronize a links; g=group; r=ricursive; o=owner; D=device; p=permissions; A=Keep access control; X=Keep file SELinux;
+- rsync -av /tmp/Secret_key /Volumes/Data/Secret_key
+- rsync -av /var/log  HOSTNAME@IP_MACHINE_DISTANT:/var/log
+
 Command to copy all the file ssh to the external disk:
 - scp /Users/localmachine/.ssh/*  /Volumes/Data/Secret_key/
 

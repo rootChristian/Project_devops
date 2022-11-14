@@ -104,6 +104,7 @@ Installation
 - docker network inspect bridge (get info network bridge)
 
 - docker network create network_test (create a new network)
+- docker network create --driver=bridge --subnet=172.28.0.0/16 chagest
 
 - docker container run --publish 80:80 --detach --name server_nginx  --network network_test nginx   (add network_test to the new container generated)
 

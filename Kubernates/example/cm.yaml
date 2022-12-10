@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-app
+data:
+  state: Italie
+  city: Milan

@@ -1,0 +1,297 @@
+# DASHBOARD
+- brew install k9s
+- k9s
+
+# Get cluster info:
+- kubectl cluster-info
+
+# Install kubectx:
+- sudo apt install kubectx  OR   - brew install kubectx  
+
+# List contexts:
+- kubectl config get-contexts   OR   - kubectx  
+
+# Get current context
+- kubectl config current-context   OR   - kubectx   
+
+# Change context
+- kubectl config use-context minikube OR   - kubectx minikube
+
+# Rename context
+- kubectl config rename-context minikube k8s
+
+# Delete context
+- kubectl config delete-context k8s
+
+# get a namespace
+- kubectl get namespace OR - kubectl get ns
+
+###################################
+
+# create a namespace
+- kubectl create ns 
+
+# delete a namespace
+- kubectl delete ns 
+
+# get pods by namespace
+- kubectl get pods --namespace=kube-system OR - kubectl get pods -n=kube-system
+
+# get namespace
+- kubectl config set-context --current --namespace=kube-system
+
+# get node
+- kubectl get nodes
+
+# describe node
+- kubectl describe node
+
+##############FILE###########
+# create a pod
+- kubectl create -f file.yml
+
+# run a pod
+- kubectl run NAME_POD --image=NAME_IMAGE -it -- /bin/sh -c "sleep 3600"
+
+# list the running pods
+- kubectl get pods
+
+# list the running pods with more info
+- kubectl get pods -o wide
+
+# show pod info
+- kubectl describe pod NAME_POD
+
+# Extract a pod definition and save it to a file
+- kubectl get pod NAME_POD -o yaml > file.yaml
+
+# Interactive mode
+- kubectl exec my -it -- /bin/sh
+
+# delete a pod
+- kubectl delete -f file.yml   OR   - kubectl delete pod NAME_POD   OR    - kubectl delete pod NAME_POD --wait=false
+- kubectl delete pod NAME_POD --grace-period=0 --force
+
+# Interactive mode
+- kubectl exec -it NAME_POD --container NAME_CONTAINER -- /bin/sh
+
+# Fetch html page served by the nginx container
+- wget -qO- localhost
+
+###################################
+
+# Create a replicaSet
+- kubectl apply -f file.yaml
+
+# List replicaSets
+- kubectl get rs
+
+# Get info replicaSet
+- kubectl describe rs
+
+# Delete replicaSet
+- kubectl delete rs NAME_REPLICASET   OR   - kubectl delete -f file.yaml
+
+###################################
+
+# Create a deployment
+- kubectl apply -f file.yaml    OR    - kubectl deploy NAME_DEPLOY --image=busybox --replicas=3 --port=80
+
+# List deployments
+- kubectl get deploy
+
+# Get info deployment
+- kubectl describe deploy NAME_DEPLOY
+
+# Delete deployment
+- kubectl delete deploy NAME_DEPLOY   OR   - kubectl delete -f file.yaml
+
+###################################
+
+# Create a daemonSet
+- kubectl apply -f file.yaml 
+
+# List daemonSets
+- kubectl get ds
+
+# Get info daemonSet
+- kubectl describe ds NAME_DAEMONSET
+
+# Delete daemonSet
+- kubectl delete ds NAME_DAEMONSET  OR   - kubectl delete -f file.yaml
+
+###################################
+
+# Create a statefulSet
+- kubectl apply -f file.yaml
+
+# List statefulSets
+- kubectl get sts
+
+# Get info statefulSet
+- kubectl describe sts NAME_STATEFULSET
+
+# Delete statefulSet
+- kubectl delete sts NAME_STATEFULSET   OR   - kubectl delete -f file.yaml
+
+# List PVC
+- kubectl get pvc
+
+# Delete deployment
+- kubectl delete deploy NAME_DEPLOY   OR   - kubectl delete -f file.yaml
+
+###################################
+
+# Create a job
+- kubectl apply -f file.yaml   OR    - kubectl create job NAME_JOB --image=busybox
+
+# List jobs
+- kubectl get job
+
+# Get logs
+- kubectl logs myjob-pskf8
+
+# Get info job
+- kubectl describe job NAME_JOB
+
+# Delete job
+- kubectl delete job NAME_JOB  OR   - kubectl delete -f file.yaml
+
+###################################
+
+# Create a cronJob
+- kubectl apply -f file.yaml   OR    - kubectl create cronjob NAME_CRONJOB --image=busybox --shedule="*/1 * * * *" -- bin/bash -c "date;"
+
+# List cronJobs
+- kubectl get cj
+
+# Get logs
+- kubectl logs NAME_CRONJOB
+
+# Get info cronJob
+- kubectl describe cj NAME_CRONJOB
+
+# Delete cronJob
+- kubectl delete cj NAME_CRONJOB  OR   - kubectl delete -f file.yaml
+
+################################### ROLLING UPDATE
+
+# Update a deployment
+- kubectl apply -f file.yaml 
+
+# Get the progress of the update
+- kubectl rollout status NAME_DEPLOYMENT
+
+# Get the history of the deployment
+- kubectl rollout history deployment NAME_DEPLOYMENT
+
+# Rollback a deployment
+- kubectl rollout undo NAME_DEPLOYMENT
+
+# Rollback to a revision number
+- kubectl rollout undo NAME_DEPLOYMENT --to-revision=REVISION_NUMBER
+
+################################### ClusterIp(Internal): the default service
+
+# Create a service to expose a pod
+- kubectl expose po NAME_POD --port=80 --target-port=8080 --name=frontend
+
+# Create a service to expose a deployment
+- kubectl expose deploy NAME_DEPLOY --port=80 --target-port=8080
+
+################################### NodePort(Internal and External); range (30000-32767)
+
+# Create a service to expose a pod
+- kubectl expose po NAME_POD --port=80 --target-port=8080 --type=NodePort
+
+# Create a service to expose a deployment
+- kubectl expose deploy NAME_DEPLOY --port=80 --target-port=8080 --type=NodePort --name=frontend
+
+################################### Storage and persistence
+
+# Create the persistent volume
+- kubectl apply -f pv.yaml
+
+# Get the pv
+- kubectl get pv
+
+# Deploy the pvc
+- kubectl apply -f pvc.yaml
+
+# Get the pvc
+- kubectl get pvc
+
+# Deploy the pod
+- kubectl apply -f pv_pvc_pod.yaml
+
+# Connect to the busybox instance
+- kubectl exec mybox -it -- /bin/sh
+
+# Delete the pod
+- kubectl delete -f pv_pvc_pod.yaml --force --grace-period=0
+
+# Delete the pvc
+- kubectl delete -f pvc.yaml
+
+# Delete the pv
+- kubectl delete -f pv.yaml
+
+################################### ConfigMaps
+
+# Create the persistent volume
+- kubectl create configmap literal-example --from-literal="city= Milan" --from-literal="state= Italie" 
+- kubectl apply -f file.yaml
+
+# Create a file
+- kubectl create cm NAME --from-file=myconfig.txt
+
+# Create a folder
+- kubectl create cm NAME --from-file=config/
+
+# List the configMaps
+- kubectl get cm
+
+# Save a configMap in a yaml file
+- kubectl get cm NAME -o YAML
+
+# Deploy the pod
+- kubectl apply -f cm_pod.yaml
+
+# Connect to the busybox instance
+- kubectl exec mybox -it -- /bin/sh
+- echo $CITY
+
+# Delete the configMap
+- kubectl delete -f cm.yaml
+- kubectl delete -f cm_pod.yaml
+
+################################### Secrets
+# Code:     echo admin | base64
+# Decode:   echo admin | base64 -d
+# Create the secret
+- kubectl create secret generic NAME_SECRET --from-literal=STATE= Italie
+- kubectl apply -f file.yaml
+
+# Get the secret
+- kubectl get secret
+
+# List the secrets
+- kubectl get secrets
+
+# Save a secret in a yaml file
+- kubectl get secrets NAME -o YAML
+
+# Deploy the pod
+- kubectl apply -f secret_pod.yaml
+
+# Connect to the busybox instance
+- kubectl exec mybox -it -- /bin/sh
+- echo $USERNAME
+- echo $PASSWORD
+
+# Delete the configMap
+- kubectl delete secrets NAME_SECRET
+- kubectl delete -f cm.yaml
+- kubectl delete -f cm_pod.yaml
+
+

@@ -221,7 +221,13 @@ services:
         ports:
             - '80:80'
 
+-> docker compose build   (to build a container)
+
 -> docker-compose up -d   (to launch a container)
+
+-> docker-compose up -p test -d   (to build and run a container with project name test)
+
+-> docker compose ls   (show the container running)
 
 -> docker-compose down   (to stop a container)
 

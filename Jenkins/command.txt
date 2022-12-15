@@ -2,33 +2,7 @@
 **************JENKINS**************
 ***********************************
 
-- vim docker-compose.yml
-
-version: '3'
-services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    labels:
-      kompose.service.type: nodeport
-    ports:
-      - '8080:8080'
-      - '443:8443'
-      - '50000:50000'
-    volumes:
-      - /home/srv/jenkins/data:/jenkins/jenkins_home
-      - /home/srv/jenkins/config:/jenkins/jenkins_config
-
-  agent:
-    image: jenkins/ssh-agent:jdk11
-    privileged: true
-    user: root
-    container_name: agent
-    expose:
-      - 22
-    environment:
-      - JENKINS_AGENT_SSH_PUBKEY=ssh-rsa aC1yc2EAAALyWGNDjVg1wmDi5FNk= root@SERVER
-
+# Build jenkins in docker
 - docker-compose up -d  (Launch a docker compose)
 - docker logs jenkins   (To get password in log)
 

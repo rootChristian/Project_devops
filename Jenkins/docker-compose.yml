@@ -16,7 +16,8 @@ services:
       - '443:8443'
       - '50000:50000'
     volumes:
-      - /srv/jenkins/data:/jenkins/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/jenkins/data:/var/jenkins_home
       - /srv/jenkins/config:/jenkins/jenkins_config
 
   agent:

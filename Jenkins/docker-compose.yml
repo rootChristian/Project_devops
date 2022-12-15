@@ -1,0 +1,30 @@
+#/***********************************************************************
+#************ Author:    Christian KEMGANG NGUESSOP *********************
+#************ Version:    1.0.0                      ********************
+#***********************************************************************/
+
+version: '3'
+services:
+  jenkins:
+    restart: always
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    labels:
+      kompose.service.type: nodeport
+    ports:
+      - '8080:8080'
+      - '443:8443'
+      - '50000:50000'
+    volumes:
+      - /srv/jenkins/data:/jenkins/jenkins_home
+      - /srv/jenkins/config:/jenkins/jenkins_config
+
+  agent:
+    image: jenkins/ssh-agent:jdk11
+    privileged: true
+    user: root
+    container_name: agent
+    expose:
+      - 22
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=ssh-rsa aC1yc2EAAALyWGNDjVg1wmDi5FNk= root@SERVER

@@ -9,8 +9,8 @@ services:
     restart: always
     image: jenkins/jenkins:lts
     container_name: jenkins
-    labels:
-      kompose.service.type: nodeport
+    privileged: true
+    user: root
     ports:
       - '8080:8080'
       - '443:8443'
@@ -18,13 +18,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /srv/jenkins/data:/var/jenkins_home
-      - /srv/jenkins/config:/jenkins/jenkins_config
 
-  agent:
+  jks_agent:
     image: jenkins/ssh-agent:jdk11
     privileged: true
     user: root
-    container_name: agent
+    container_name: jenkins-agent
     expose:
       - 22
     environment:
